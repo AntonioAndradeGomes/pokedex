@@ -7,6 +7,9 @@ class PokemonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(title: Text(pokemon.pokemonName));
+    return ListTile(
+      title: Text(pokemon.pokemonName),
+      leading: CircleAvatar(backgroundImage: NetworkImage(pokemon.pokemonUrl)),
+    );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pokedex/src/home/domain/entities/pokemon_entity.dart';
-import 'package:pokedex/src/home/infra/home_repository.dart';
+import 'package:pokedex/src/home/view/pages/home_notifier.dart';
 import 'package:pokedex/src/home/view/widgets/pokemon_widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,30 +11,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _textController = TextEditingController();
-  List<PokemonEntity> pokemons = [];
-  List<PokemonEntity> pokemonsFiltered = [];
+  final _notifier = HomeNotifier();
 
   @override
   void initState() {
     super.initState();
-    HomeRepository().getPokemons().then((value) {
-      setState(() {
-        pokemons = value;
-        pokemonsFiltered = value;
-      });
-    });
+    _notifier.getPokemons();
 
-    _textController.addListener(onChangedText);
-  }
-
-  void onChangedText() {
-    setState(() {
-      pokemonsFiltered =
-          pokemons.where((element) {
-            return element.pokemonName.toLowerCase().contains(
-              _textController.text.toLowerCase(),
-            );
-          }).toList();
+    _textController.addListener(() {
+      _notifier.filterPokemons(_textController.text);
     });
   }
 
@@ -66,16 +50,24 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      body:
-          pokemonsFiltered.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                itemCount: pokemonsFiltered.length,
-                itemBuilder: (_, index) {
-                  final pokemon = pokemonsFiltered[index];
-                  return PokemonWidget(pokemon: pokemon);
-                },
-              ),
+      body: ValueListenableBuilder(
+        valueListenable: _notifier,
+        builder: (_, state, __) {
+          if (state.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return ListView.builder(
+            itemCount: state.length,
+            itemBuilder: (_, index) {
+              final pokemon = state[index];
+              return PokemonWidget(
+                key: ValueKey(pokemon.pokemonId),
+                pokemon: pokemon,
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
