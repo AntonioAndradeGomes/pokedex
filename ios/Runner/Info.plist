@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Este app precisa acessar a rede local para funcionalidades de debug e comunicação com dispositivos.</string>
 </dict>
 </plist>
